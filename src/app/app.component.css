@@ -1,0 +1,191 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  table th, table td {
+    border: 1px solid white;
+    padding: 8px;
+    text-align: center;
+  }
+  
+.relative {
+    position: relative;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.static {
+    position: static;
+}
+
+.flex {
+    display: flex;
+}
+
+.fdc {
+    flex-direction: column;
+}
+
+.fdr {
+    flex-direction: row;
+}
+
+.aic {
+    align-items: center;
+}
+
+.jcc {
+    justify-content: center;
+}
+
+.jcsb {
+    justify-content: space-between;
+}
+
+.jcse {
+    justify-content: space-evenly;
+}
+
+.jcsa {
+    justify-content: space-around;
+}
+
+.tc {
+    text-align: center;
+}
+
+.tal {
+    text-align: left !important;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+.mt-10 {
+    margin-top: 10px;
+}
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.mb-5 {
+    margin-bottom: 5px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+/* .myText {
+    font-size: .8rem;
+    font-weight: 700;
+    margin: 5px 0 0;
+} */
+
+.hidden {
+    display: none;
+}
+
+/* body {
+    margin: 0;
+} */
+
+.container {
+    margin: 45px auto;
+    /* width: 90%; */
+    width: 270mm;  
+}
+
+.pg-content {
+    /* width: 300px;
+    height: 500px; */
+    width: 267mm;  
+    height: 200mm;
+    /* width: 297mm;  
+    height: 210mm; */
+}
+
+.b {
+    border: 1px solid black;
+}
+
+.by {
+    border: 1px solid red;
+}
+
+h2 {
+    /* text-align: center; */
+    color: #333;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+    border-color: #00af4f;
+    outline: none;
+}
+
+button {
+    background-color: #00af4f;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    /* width: 90%; */
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #007a38;
+}
+
+button[type="button"] {
+    margin-top: 10px;
+  }
+
+.inline {
+    display: inline;
+}
+
+
+fieldset{
+    border: solid 2px #000;  
+ } 
+legend {
+    background-color: #000;
+    color: #fff;
+    padding: 3px 6px;
+  }
+
+ 
+  input[type='radio'] {
+    margin-right: 10px;
+  }
+  
+
+/* Mobile responsiveness */
+/* @media (min-width: 768px) {
+    .container {
+        margin: 45px auto;
+        width: 50%;
+    }
+} */
