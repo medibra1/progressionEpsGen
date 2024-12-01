@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import { ModalComponent } from './components/modal/modal.component';
 import { IHeaderData, ITableData, ProgressionEpsService } from './services/progression-eps/progression-eps.service';
@@ -20,10 +20,11 @@ export interface TableData {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule, ModalComponent],
+  imports: [RouterOutlet, CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
+
 export class AppComponent {
 
   // colors: string[] = ['#d9edf7', '#dff0d8'];
@@ -35,8 +36,8 @@ export class AppComponent {
 
   progressionService = inject(ProgressionEpsService);
 
-  headerData: IHeaderData;
-  tableData: ITableData[];
+  // headerData: IHeaderData;
+  // tableData: ITableData[];
   competences;
   lessons;
   activities;
@@ -44,18 +45,63 @@ export class AppComponent {
 
   colors: string[] = ['#d9edf7', '#dff0d8'];
 
+  headerForm: FormGroup;
+  tableForm: FormGroup;
+  formBuilder = inject(FormBuilder);
+
   ngOnInit() {
     this.competences = this.progressionService.competences1;
     this.lessons =  this.progressionService.lessons1;
     this.activities =  this.progressionService.activities;
 
-    this.headerData = this.progressionService.getHeaderData();
-    this.tableData = this.progressionService.getTableData();
+    // this.headerData = this.progressionService.getHeaderData();
+    this.initializeHeaderForm(this.progressionService.getHeaderData());
+    this.initializeTableForm(this.progressionService.getTableData());
+    // this.tableData = this.progressionService.getTableData();
+  }
+
+  get f() {
+    return this.headerForm.controls;
+  }
+
+  initializeHeaderForm(headerData: IHeaderData): void {
+    this.headerForm = this.formBuilder.group({
+      title: headerData.title,
+      schoolName: headerData.schoolName,
+      professor: headerData.professor,
+      class: headerData.class,
+      region : headerData.region,
+      year_year : headerData.year_year,
+      color: headerData.color
+    });
+  }
+
+  initializeTableForm(tableData: ITableData[]): void {
+    const rows = tableData.map(data =>
+      this.formBuilder.group({
+        period: [data.period],
+        sessions: [data.sessions],
+        hours: [data.hours],
+        competence: [data.competence],
+        lesson: [data.lesson],
+        activity: [data.activity]
+      })
+    );
+
+    this.tableForm = this.formBuilder.group({
+      rows: this.formBuilder.array(rows)
+    });
+  }
+
+  get rows(): FormArray {
+    return this.tableForm.get('rows') as FormArray;
   }
 
   saveEpsProgressionData(): void {
-    console.log('Data to save: ', this.headerData);
-    this.progressionService.saveData(this.headerData, this.tableData);
+    console.log('Data to save: ', this.tableForm.value.rows);
+    this.progressionService.saveData( this.headerForm.value, this.tableForm.value.rows);
+    // this.headerData = this.progressionService.defaultHeader;
+    // this.tableData = this.progressionService.defaultTableData;
     this.displayModal = false;
     this.displayTableContentModal = false;
   }
@@ -68,11 +114,36 @@ export class AppComponent {
       this.colors[index] = color; // Mise à jour des couleurs du tableau
     }
   }
+ 
+  // selectChange(event, index, val) {
+  //   if(val === 'skill') this.tableForm.value.rows[index].competence =  event.target.value;
+  //   else if(val === 'lesson') this.tableForm.value.rows[index].lesson =  event.target.value;
+  //   else if(val === 'activity') this.tableForm.value.rows[index].activity =  event.target.value;
+  // }
 
-  selectChange(event, index, val) {
-    if(val === 'skill') this.tableData[index].competence =  event.target.value;
-    else if(val === 'lesson') this.tableData[index].lesson =  event.target.value;
-    else if(val === 'activity') this.tableData[index].activity =  event.target.value;
+  selectChange(event: any, index: number, field: string): void {
+    const value = event.target ? event.target.value : event.value;
+  
+    // Accéder au groupe de la ligne
+    const rowFormGroup = this.tableForm.get(['rows', index]);
+  
+    if (rowFormGroup) {
+      switch (field) {
+        case 'skill':
+          rowFormGroup.get('competence')?.setValue(value);
+          break;
+        case 'lesson':
+          rowFormGroup.get('lesson')?.setValue(value);
+          break;
+        case 'activity':
+          rowFormGroup.get('activity')?.setValue(value);
+          break;
+        default:
+          console.warn(`Unknown field: ${field}`);
+      }
+    } else {
+      console.warn(`No row found at index ${index}`);
+    }
   }
   
   switchList(): void {
@@ -85,34 +156,31 @@ export class AppComponent {
     }
   }
 
-  saveTableData() {
-    localStorage.setItem('tableData', JSON.stringify(this.tableData));
-  }
-
   addRow(): void {
-    this.tableData.push({
-      period: '',
-      sessions: 0,
-      hours: 0,
-      competence: '',
-      lesson: '',
-      activity: ''
+    const newRow = this.formBuilder.group({
+      competence: ['', Validators.required],
+      lesson: ['', Validators.required],
+      activity: ['', Validators.required],
+      period: ['', Validators.required],
+      sessions: ['', Validators.required],
+      hours: ['', Validators.required],
     });
+    this.rows.push(newRow);
   }
 
   // Supprimer une période
   removeRow(index: number): void {
-    if (this.tableData.length > 1) {
-      this.tableData.splice(index, 1);
+    if (this.rows.length > 1) {
+      this.rows.removeAt(index);
     } else {
-      alert('Impossible de supprimer la dernière période !');
+      console.warn("Impossible de supprimer la dernière ligne.");
     }
   }
 
   generateFileName() {
     // Récupérer les valeurs du formulaire
-    const className = this.headerData.class;
-    const teacherName = this.headerData.professor;
+    const className = this.f['class'].value;
+    const teacherName = this.f['professor'].value;
 
     // Nettoyer le nom du professeur pour retirer "M." ou "Mme", enlever les espaces, et remplacer les points
     // const cleanedTeacherName = cleanProfessorName(teacherName);
@@ -195,5 +263,14 @@ export class AppComponent {
     document.body.removeChild(a); // Supprimer le lien après le clic
   }
 
+  async clearData() {
+    if(confirm('Voulez-vous réinitialiser les données ?')) {
+      await this.progressionService.clearData();
+      // Réinitialiser headerData et tableData
+      // this.headerData = this.progressionService.defaultHeader;
+      this.initializeHeaderForm(this.progressionService.defaultHeader);
+      this.initializeTableForm(this.progressionService.defaultTableData);
+    }
+  }
 
 }

@@ -2,18 +2,19 @@
 
   <button (click)="displayModal = true" style="margin-right: 5px; background-color: #6fa6f4;">Formulaire info école</button>
   <button (click)="displayTableContentModal = true">Formulaire du tableau</button>
+  <button style="background-color: rgb(247, 80, 80); display: block; margin: 8px 0;" (click)="clearData()">Réinitialiser les données</button>
 
   <div class="pg-content" id="pg-content">
     <div class="flex jcsb">
       <div>
-        <p style="margin: 5px 0" id="school_name_display">{{headerData.schoolName}}</p>
-        <p style="margin: 5px 0;">Drena : {{headerData.region}}</p>
-        <p style="margin: 5px 0;">Classe : {{headerData.class}}</p>
+        <p style="margin: 5px 0" id="school_name_display">{{f['schoolName'].value}}</p>
+        <p style="margin: 5px 0;">Drena : {{f['region'].value}}</p>
+        <p style="margin: 5px 0;">Classe : {{f['class'].value}}</p>
       </div>
-      <p>Professeur : <span id="teacher_name_display">{{headerData.professor}}</span></p>
+      <p>Professeur : <span id="teacher_name_display">{{f['professor'].value}}</span></p>
     </div>
 
-    <h3 class="tc">{{headerData.title}}</h3>
+    <h3 class="tc">{{f['title'].value}}</h3>
 
     <div>
       <!-- <table border="1"> -->
@@ -31,14 +32,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let row of tableData; let i = index" [style.background-color]="colors[i % colors.length]">
+          <tr *ngFor="let row of rows.controls; let i = index" [style.background-color]="colors[i % colors.length]">
             <td [ngStyle]="{'background-color': selectedHeaderColor}" style="color: white;">{{ i + 1 }}</td>
-            <td class="tal">{{ row.period }}</td>
-            <td>{{ row.sessions }}</td>
-            <td>{{ row.hours }}</td>
-            <td class="tal"> {{row.competence}} </td>
-            <td class="tal"> {{row.lesson}} </td>
-            <td> {{row.activity}} </td>
+            <td>{{ row.get('period')?.value }}</td>
+            <td>{{ row.get('sessions')?.value }}</td>
+            <td>{{ row.get('hours')?.value }}</td>
+            <td>{{ row.get('competence')?.value }}</td>
+            <td>{{ row.get('lesson')?.value }}</td>
+            <td>{{ row.get('activity')?.value }}</td>
           </tr>
         </tbody>
       </table>
@@ -53,11 +54,11 @@
     </div>
 
     <div class="mb-5">
-      <label class="inline" for="colorPicker1">Choisissez la premiere couleur: </label>
+      <label class="inline" for="colorPicker1">Choisissez la premiere couleur des cellules: </label>
       <input type="color" id="colorPicker1" [(ngModel)]="colors[0]" (change)="onColorChange($event, 0)">
     </div>
     <div class="mb-5">
-      <label class="inline" for="colorPicker2">Choisissez la deuxieme couleur: </label>
+      <label class="inline" for="colorPicker2">Choisissez la deuxieme couleur des cellules: </label>
       <input type="color" id="colorPicker2" [(ngModel)]="colors[1]" (change)="onColorChange($event, 1)">
     </div>
 
@@ -81,24 +82,24 @@
   [displaySaveBtn]="true" (saveData)="saveEpsProgressionData()" (closeModal)="displayModal = false"></app-modal>
 <ng-template #modal>
   <!-- <form (ngSubmit)="saveCoverPageData()"> -->
-  <form>
+  <form [formGroup]="headerForm">
     <label for="school_name">Ecole:</label><br>
-    <input type="text" id="school_name" [(ngModel)]="headerData.schoolName" name="schoolName"><br><br>
+    <input type="text" id="school_name" formControlName="schoolName" name="schoolName"><br><br>
 
     <label for="teacher_name">Professeur:</label><br>
-    <input type="text" id="teacher_name" [(ngModel)]="headerData.professor" name="professor"><br><br>
+    <input type="text" id="teacher_name" formControlName="professor" name="professor"><br><br>
 
     <label for="class">Classe:</label><br>
-    <input type="text" id="class" [(ngModel)]="headerData.class" name="class"><br><br>
+    <input type="text" id="class" formControlName="class" name="class"><br><br>
 
     <label for="title">Titre:</label><br>
-    <input type="text" id="title" [(ngModel)]="headerData.title" name="title"><br><br>
+    <input type="text" id="title" formControlName="title" name="title"><br><br>
 
     <label for="region">Region:</label><br>
-    <input type="text" id="region" [(ngModel)]="headerData.region" name="region"><br><br>
+    <input type="text" id="region" formControlName="region" name="region"><br><br>
 
     <label for="year_year">Annéé scolaire:</label><br>
-    <input type="text" id="year_year" [(ngModel)]="headerData.year_year" name="year_year"><br><br>
+    <input type="text" id="year_year" formControlName="year_year" name="year_year"><br><br>
 
     <!-- <button type="submit">Enregistrer</button> -->
   </form>
@@ -108,90 +109,95 @@
   [displaySaveBtn]="true" (saveData)="saveEpsProgressionData()" (closeModal)="displayTableContentModal = false"></app-modal>
 <ng-template #tableModal>
   <!-- <form (ngSubmit)="saveCoverPageData()"> -->
-  <form>
-    <label for="class">Classe:</label><br>
-    <input type="text" id="class" [(ngModel)]="headerData.class" name="class"><br><br>
+    <!-- <label for="class">Classe:</label><br>
+    <input type="text" id="class" formControlName="class" name="class"><br><br> -->
 
     <div class="radio-option">
       <input type="radio" id="choice1" name="skillLessonToDisplay" value="1" [(ngModel)]="selectedSkillLesson" (change)="switchList()"/>
       <label for="choice1" class="inline">Compétences/leçons 6ème-5ème</label>
     </div>
-  
+    
     <div class="radio-option mb-10">
       <input type="radio" id="choice2" name="skillLessonToDisplay" value="2"[(ngModel)]="selectedSkillLesson" (change)="switchList()"/>
       <label for="choice2" class="inline">Compétences/leçons 4ème-3ème</label>
     </div>
 
-    <div *ngFor="let row of tableData; let i = index" class="mb-10">
-      <fieldset>
-        <legend>Période {{ i + 1 }}</legend>
+  <form [formGroup]="tableForm">
   
-        <label for="period-{{ i }}">Période :</label>
-        <input 
-          type="text" 
-          id="period-{{ i }}" 
-          [(ngModel)]="row.period" 
-          name="period-{{ i }}" required 
-        /><br /><br />
-  
-        <label for="sessions-{{ i }}">Séances :</label>
-        <input 
-          type="number" 
-          id="sessions-{{ i }}" 
-          [(ngModel)]="row.sessions" 
-          name="sessions-{{ i }}" required
-        /><br /><br />
-  
-        <label for="hours-{{ i }}">Heures :</label>
-        <input 
-          type="number" 
-          id="hours-{{ i }}" 
-          [(ngModel)]="row.hours" 
-          name="hours-{{ i }}" required
-        /><br /><br />
-  
-        <label for="class">Choisir une compétence:</label>
-        <select (change)="selectChange($event, i, 'skill')">
-          <option value="">Selectionner une compétence</option>
-          <option *ngFor="let competence of competences" [value]="competence">{{ competence }}</option>
-        </select>
 
-        <label for="competence-{{ i }}">Compétence :</label>
-        <textarea 
-          id="competence-{{ i }}" 
-          [(ngModel)]="row.competence" 
-          name="competence-{{ i }}" 
-        ></textarea><br /><br />
-  
-        <label for="class">Choisir une leçon:</label>
-        <select (change)="selectChange($event, i, 'lesson')">
-          <option value="">Selectionner une leçon</option>
-          <option *ngFor="let lesson of lessons" [value]="lesson">{{ lesson }}</option>
-        </select>
-        <label for="lesson-{{ i }}">Leçon :</label>
-        <textarea 
-          id="lesson-{{ i }}" 
-          [(ngModel)]="row.lesson" 
-          name="lesson-{{ i }}" 
-        ></textarea><br /><br />
-  
-        <label for="class">Choisir une activité:</label>
-        <select (change)="selectChange($event, i, 'activity')">
-          <option value="">Selectionner une activité</option>
-          <option *ngFor="let activity of activities" [value]="activity">{{ activity }}</option>
-        </select>
+    <div formArrayName="rows">
+      <div *ngFor="let row of rows.controls; let i = index" [formGroupName]="i" class="mb-10">
+        <fieldset>
+          <legend>Période {{ i + 1 }}</legend>
+    
+          <label for="period-{{ i }}">Période :</label>
+          <input 
+            type="text" 
+            id="period-{{ i }}" 
+            formControlName="period"
+            name="period-{{ i }}" required 
+          /><br /><br />
+    
+          <label for="sessions-{{ i }}">Séances :</label>
+          <input 
+            type="number" 
+            id="sessions-{{ i }}" 
+            formControlName="sessions"
+            name="sessions-{{ i }}" required
+          /><br /><br />
+    
+          <label for="hours-{{ i }}">Heures :</label>
+          <input 
+            type="number" 
+            id="hours-{{ i }}" 
+            formControlName="hours"
+            name="hours-{{ i }}" required
+          /><br /><br />
+    
+          <label for="class">Choisir une compétence:</label>
+          <select (change)="selectChange($event, i, 'skill')">
+            <option value="">Selectionner une compétence</option>
+            <option *ngFor="let competence of competences" [value]="competence">{{ competence }}</option>
+          </select>
 
-        <label for="activity-{{ i }}">Activité :</label>
-        <input 
-          type="text" 
-          id="activity-{{ i }}" 
-          [(ngModel)]="row.activity" 
-          name="activity-{{ i }}" 
-        /><br /><br />
-  
-        <!-- Bouton pour supprimer une période -->
-        <button type="button" (click)="removeRow(i)" style="background-color: red;">Supprimer cette période</button>
-      </fieldset>
+          <label for="competence-{{ i }}">Compétence :</label>
+          <textarea 
+            id="competence-{{ i }}" 
+            formControlName="competence"
+            name="competence-{{ i }}" 
+          ></textarea><br /><br />
+    
+          <label for="class">Choisir une leçon:</label>
+          <select (change)="selectChange($event, i, 'lesson')">
+            <option value="">Selectionner une leçon</option>
+            <option *ngFor="let lesson of lessons" [value]="lesson">{{ lesson }}</option>
+          </select>
+          <label for="lesson-{{ i }}">Leçon :</label>
+          <textarea 
+            id="lesson-{{ i }}" 
+            formControlName="lesson"
+            name="lesson-{{ i }}" 
+          ></textarea><br /><br />
+    
+          <label for="class">Choisir une activité:</label>
+          <select (change)="selectChange($event, i, 'activity')">
+            <option value="">Selectionner une activité</option>
+            <option *ngFor="let activity of activities" [value]="activity">{{ activity }}</option>
+          </select>
+
+          <label for="activity-{{ i }}">Activité :</label>
+          <input 
+            type="text" 
+            id="activity-{{ i }}" 
+            formControlName="activity"
+            name="activity-{{ i }}" 
+          /><br /><br />
+    
+          <!-- Bouton pour supprimer une période -->
+          <button type="button" (click)="removeRow(i)" style="background-color: red;">Supprimer cette période</button>
+        </fieldset>
+      </div>
+
     </div>
   
     <!-- Bouton pour ajouter une nouvelle période -->

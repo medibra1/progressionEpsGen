@@ -72,7 +72,7 @@ export class ProgressionEpsService {
     "Le saut en hauteur",
     "Le handball",
     "Le volleyball",
-    "Le fottbal",
+    "Le football",
     "Le basketall",
     "La course de vitesse",
     "Le lancer de poids",
@@ -123,6 +123,15 @@ export class ProgressionEpsService {
     // const jsonData = JSON.stringify(data);
     if(headerdata) localStorage.setItem(this.headerKey, JSON.stringify(headerdata));
     if(tableData) localStorage.setItem(this.tableKey, JSON.stringify(tableData));
+  }
+
+  async clearData() {
+    try {
+      localStorage.removeItem(this.headerKey);
+      localStorage.removeItem(this.tableKey);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
 }
